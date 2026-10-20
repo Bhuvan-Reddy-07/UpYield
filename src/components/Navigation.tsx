@@ -2,12 +2,10 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard, ShieldCheck, LifeBuoy, Activity, Users, User,
-    Smartphone, TrendingUp, PieChart, Landmark, Check, LogOut, Zap
+    Smartphone, TrendingUp, PieChart, Landmark, Check, Zap
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 
 const Navigation: React.FC = () => {
-    const { logout } = useAuth();
     const location = useLocation();
     const isActive = (path: string) => location.pathname === path;
 
@@ -102,20 +100,6 @@ const Navigation: React.FC = () => {
                         <div style={{ width: '98%', height: '100%', background: 'var(--gradient-success)', borderRadius: '2px', boxShadow: '0 0 10px rgba(16, 185, 129, 0.4)' }} />
                     </div>
                 </div>
-
-                <button
-                    onClick={async () => {
-                        try {
-                            await logout();
-                        } catch (error) {
-                            console.error("Logout failed", error);
-                        }
-                    }}
-                    className="btn btn-danger"
-                    style={{ width: '100%', marginTop: '1rem', justifyContent: 'center' }}
-                >
-                    <LogOut size={18} /> Logout
-                </button>
             </div>
         </nav>
     );

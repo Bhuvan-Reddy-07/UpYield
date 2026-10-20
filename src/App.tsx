@@ -1,5 +1,5 @@
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { AuthProvider } from './contexts/AuthContext'
 import TrustDashboard from './components/TrustDashboard'
 import ComplaintCenter from './components/ComplaintCenter'
 import TransparencyPage from './components/TransparencyPage'
@@ -7,8 +7,6 @@ import AgentDashboard from './components/AgentDashboard'
 import HelpCenter from './components/HelpCenter'
 import StatusPage from './components/StatusPage'
 import Navigation from './components/Navigation'
-import Login from './components/Login'
-import Signup from './components/Signup'
 import Chatbot from './components/Chatbot'
 import TransactionHistory from './components/TransactionHistory'
 import UPIPayments from './components/features/UPIPayments'
@@ -19,120 +17,110 @@ import RBIVerification from './components/features/RBIVerification'
 import SettingsPage from './components/SettingsPage'
 import './styles/global.css'
 
-// Protected Route Wrapper with Navigation
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { currentUser, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="flex-center" style={{ height: '100vh', background: 'var(--bg-dark)', color: 'white' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-          <div className="spinner"></div>
-          Loading UpYield...
-        </div>
-      </div>
-    );
-  }
-
-  return currentUser ? (
+// Main Layout Wrapper with Navigation
+const AppLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
     <div className="app-layout">
       <Navigation />
       <main className="main-content">
         {children}
       </main>
     </div>
-  ) : <Navigate to="/login" />;
+  );
 };
 
 function App() {
-  console.log("App Component Rendering - No Chatbot");
+  console.log("App Component Rendering - Direct Access");
   return (
     <Router>
       <AuthProvider>
         <div className="app-container">
           <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            {/* Redirect login and signup directly to dashboard */}
+            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/signup" element={<Navigate to="/" replace />} />
 
-            {/* Protected Routes */}
+            {/* Application Routes */}
             <Route path="/" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <TrustDashboard />
-              </ProtectedRoute>
+              </AppLayout>
             } />
 
             <Route path="/history" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <TransactionHistory />
-              </ProtectedRoute>
+              </AppLayout>
             } />
 
             <Route path="/issues" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <ComplaintCenter />
-              </ProtectedRoute>
+              </AppLayout>
             } />
             <Route path="/transparency" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <TransparencyPage />
-              </ProtectedRoute>
+              </AppLayout>
             } />
             <Route path="/agent" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <AgentDashboard />
-              </ProtectedRoute>
+              </AppLayout>
             } />
 
             <Route path="/help" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <HelpCenter />
-              </ProtectedRoute>
+              </AppLayout>
             } />
             <Route path="/status" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <StatusPage />
-              </ProtectedRoute>
+              </AppLayout>
             } />
 
             {/* Profile & Settings */}
             <Route path="/profile" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <SettingsPage />
-              </ProtectedRoute>
+              </AppLayout>
             } />
             <Route path="/settings" element={ // Alias for profile
-              <ProtectedRoute>
+              <AppLayout>
                 <SettingsPage />
-              </ProtectedRoute>
+              </AppLayout>
             } />
 
             {/* New Feature Routes */}
             <Route path="/payments/upi" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <UPIPayments />
-              </ProtectedRoute>
+              </AppLayout>
             } />
             <Route path="/invest/stocks" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <StockMarket />
-              </ProtectedRoute>
+              </AppLayout>
             } />
             <Route path="/invest/funds" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <MutualFunds />
-              </ProtectedRoute>
+              </AppLayout>
             } />
             <Route path="/finance/accounts" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <ConnectedAccounts />
-              </ProtectedRoute>
+              </AppLayout>
             } />
             <Route path="/finance/rbi-check" element={
-              <ProtectedRoute>
+              <AppLayout>
                 <RBIVerification />
-              </ProtectedRoute>
+              </AppLayout>
             } />
+
+            {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           {/* Global Chatbot */}
           <Chatbot />

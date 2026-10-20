@@ -1,13 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../firebase/config';
 import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut,
     onAuthStateChanged,
     type User
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 
 interface UserData {
     displayName: string;
@@ -34,50 +31,55 @@ export function useAuth() {
     return context;
 }
 
+const defaultUser = {
+    uid: 'guest-user',
+    email: 'bhuvan@upyield.com',
+    displayName: 'Bhuvan Reddy',
+} as unknown as User;
+
+const defaultUserData: UserData = {
+    displayName: 'Bhuvan Reddy',
+    email: 'bhuvan@upyield.com',
+    trustScore: 98
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [userData, setUserData] = useState<UserData | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [currentUser, setCurrentUser] = useState<User | null>(defaultUser);
+    const [userData, setUserData] = useState<UserData | null>(defaultUserData);
+    const [loading, setLoading] = useState(false);
 
-    async function signup(email: string, password: string, name: string) {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Create user document in Firestore
-        await setDoc(doc(db, 'users', user.uid), {
-            displayName: name,
-            email: email,
-            trustScore: 98, // Default starting score
-            createdAt: new Date().toISOString()
-        });
-
+    async function signup(email: string, _password: string, name: string) {
         setUserData({ displayName: name, email, trustScore: 98 });
     }
 
-    function login(email: string, password: string) {
-        return signInWithEmailAndPassword(auth, email, password).then(() => { });
+    async function login(_email: string, _password: string) {
+        setCurrentUser(defaultUser);
+        setUserData(defaultUserData);
     }
 
-    function logout() {
-        return signOut(auth);
+    async function logout() {
+        // No-op since auth is bypassed
     }
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             console.log("Auth state changed:", user ? "User logged in" : "No user");
             try {
-                setCurrentUser(user);
                 if (user) {
+                    setCurrentUser(user);
                     const docRef = doc(db, 'users', user.uid);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         setUserData(docSnap.data() as UserData);
                     }
                 } else {
-                    setUserData(null);
+                    setCurrentUser(defaultUser);
+                    setUserData(defaultUserData);
                 }
             } catch (error) {
                 console.error("Error in auth state change:", error);
+                setCurrentUser(defaultUser);
+                setUserData(defaultUserData);
             } finally {
                 setLoading(false);
             }

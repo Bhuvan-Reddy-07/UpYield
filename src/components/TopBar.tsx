@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Search, Bell, ChevronDown, MessageSquare, Calendar, Settings, User, LogOut, X } from 'lucide-react';
+import { Search, Bell, ChevronDown, MessageSquare, Calendar, Settings, User, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const TopBar: React.FC = () => {
-    const { currentUser, logout } = useAuth();
+    const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [searchFocused, setSearchFocused] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -19,15 +19,6 @@ const TopBar: React.FC = () => {
         if (e.key === 'Enter') {
             alert(`Searching for: ${searchValue}`);
             // In a real app, you'd navigate to search results or filter the dashboard
-        }
-    };
-
-    const handleLogout = async () => {
-        try {
-            await logout();
-            navigate('/login');
-        } catch (error) {
-            console.error("Failed to log out", error);
         }
     };
 
@@ -239,14 +230,6 @@ const TopBar: React.FC = () => {
                                 onClick={() => navigate('/settings')}
                             >
                                 <Settings size={16} /> Settings
-                            </div>
-                            <div style={{ height: '1px', background: 'var(--border-glass)', margin: '0.5rem 0' }} />
-                            <div
-                                style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.8rem', borderRadius: '8px', cursor: 'pointer', color: 'var(--color-danger)' }}
-                                className="hover-bg-glass"
-                                onClick={handleLogout}
-                            >
-                                <LogOut size={16} /> Logout
                             </div>
                         </div>
                     )}
